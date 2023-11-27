@@ -51,10 +51,20 @@ class Juego:
             }),
         }
         self.escena_actual = 'inicio'
+        self.musica_actual = None
 
     def cambiar_escena(self, nombre_escena):
         self.escena_actual = nombre_escena
         self.escenas[nombre_escena].mostrar_descripcion()
+        
+        if nombre_escena == 'inicio':
+            pass
+        elif nombre_escena == 'bosque':
+            self.cargar_y_reproducir_musica("H:/My Drive/programacion/juego_texto/music/bosque.mp3")
+    
+    def cargar_y_reproducir_musica(self, ruta):
+        pygame.mixer.music.load(ruta)
+        pygame.mixer.music.play(-1)
 
     def ejecutar_accion(self, accion_usuario):
         if accion_usuario == 'salir':
@@ -75,8 +85,7 @@ class Juego:
 
     def iniciar(self):
         pygame.init()
-        pygame.mixer.music.load("H:/My Drive/programacion/juego_texto/music/inicio.mp3")
-        pygame.mixer.music.play(-1)
+        self.cargar_y_reproducir_musica("H:/My Drive/programacion/juego_texto/music/inicio.mp3")
         print()
         print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
 ░▒█▀▀▀░█░░░░█░█░█▀▀░▀▀▄░█▄▄█░█▀▀░█▄▄▀░░█░░█▄▄█░█▄▄▀░░░█░█░█▀▀░░░█░░█▄▄█░░░▒█░▒█▄▄█
@@ -105,6 +114,7 @@ Sé astuto con tus decisiones y mucha suerte, que el poder de la IA esté de tu 
         while True:
             print()
             type_print("¿Qué deseas hacer?")
+            print()
             accion_usuario = input().lower()
             self.ejecutar_accion(accion_usuario)
 
