@@ -1,5 +1,10 @@
 import time
 import sys
+import os
+script_dir = os.getcwd()
+func_dir = os.path.join(script_dir)
+sys.path.append(func_dir)
+from events import actions
 
 def type_print(texto, velocidad=0.07):
     for char in texto:
@@ -13,8 +18,14 @@ class Juego:
         self.camino = ""
         self.final = ""
         self.nombre_jugador = ""
+        self.accion = ""
 
     def iniciar(self):
+        print()
+        print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
+░▒█▀▀▀░█░░░░█░█░█▀▀░▀▀▄░█▄▄█░█▀▀░█▄▄▀░░█░░█▄▄█░█▄▄▀░░░█░█░█▀▀░░░█░░█▄▄█░░░▒█░▒█▄▄█
+░▒█▄▄▄░▀▀░░░▀▀░░▀▀▀░▀▀▀░█░░░░▀▀▀░▀░▀▀░░▀░░▀░░▀░▀░▀▀░░░▀▀░░▀▀▀░░░▀▀░▀░░▀░░░▄█▄▒█░▒█
+""")
         type_print("Bienvenido a 'El despertar de la IA'")
         print()
         type_print("""En un futuro no muy lejano, la humanidad ha logrado crear una Inteligencia Artificial
@@ -33,6 +44,8 @@ solo. Otras entidades, tanto humanas como artificiales, tienen sus propios plane
 
 El juego tiene múltiples caminos y finales, dependiendo de las decisiones que tomes.
 Sé astuto con tus decisiones y mucha suerte, que el poder de la IA esté de tu lado…""")
+        type_print("¿Qué deseas hacer?")
+        
 
 juego = Juego()
 juego.iniciar()
