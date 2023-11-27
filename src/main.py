@@ -1,6 +1,7 @@
 import time
 import sys
 import os
+import pygame
 script_dir = os.getcwd()
 func_dir = os.path.join(script_dir)
 sys.path.append(func_dir)
@@ -12,7 +13,6 @@ def type_print(texto, velocidad=0.07):
         sys.stdout.flush()
         time.sleep(velocidad)
 
-
 class Juego:
     def __init__(self):
         self.camino = ""
@@ -21,6 +21,9 @@ class Juego:
         self.accion = ""
 
     def iniciar(self):
+        pygame.init()
+        pygame.mixer.music.load("H:/My Drive/programacion/juego_texto/music/inicio.mp3")
+        pygame.mixer.music.play(-1)
         print()
         print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
 ░▒█▀▀▀░█░░░░█░█░█▀▀░▀▀▄░█▄▄█░█▀▀░█▄▄▀░░█░░█▄▄█░█▄▄▀░░░█░█░█▀▀░░░█░░█▄▄█░░░▒█░▒█▄▄█
@@ -44,8 +47,20 @@ solo. Otras entidades, tanto humanas como artificiales, tienen sus propios plane
 
 El juego tiene múltiples caminos y finales, dependiendo de las decisiones que tomes.
 Sé astuto con tus decisiones y mucha suerte, que el poder de la IA esté de tu lado…""")
-        type_print("¿Qué deseas hacer?")
+        self.ejecutar_accion()
         
+
+    def ejecutar_accion(self):
+        while True:
+            type_print("¿Qué deseas hacer?")
+            accion_usuario = input().lower()
+            if accion_usuario == 'salir':
+                type_print("Gracias por jugar. ¡Hasta luego!")
+                sys.exit()
+            if accion_usuario in actions.acciones:
+                type_print(actions.acciones[accion_usuario])
+            else:
+                type_print("No entiendo esa acción. Intenta nuevamente.")
 
 juego = Juego()
 juego.iniciar()
