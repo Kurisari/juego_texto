@@ -8,7 +8,7 @@ func_dir = os.path.join(script_dir)
 sys.path.append(func_dir)
 from events import actions
 
-def type_print(texto, velocidad=0.07):
+def type_print(texto, velocidad=0.02):
     for char in texto:
         sys.stdout.write(char)
         sys.stdout.flush()
@@ -22,6 +22,11 @@ class Escena:
 
     def mostrar_descripcion(self):
         type_print(self.descripcion)
+
+    def mostrar_opciones(self):
+        type_print("Opciones disponibles:")
+        for accion, descripcion in self.acciones.items():
+            type_print(f"- {accion}: {descripcion.get('mensaje', 'Mensaje no definido para esta acción.')}")
 
     def ejecutar_accion(self, accion_usuario):
         if accion_usuario in self.acciones:
@@ -39,10 +44,48 @@ class Escena:
 class Juego:
     def __init__(self):
         self.escenas = {
-            'inicio': Escena('inicio', "Te encuentras en el laboratorio donde se creó Esditeo.", {
-                'caminar': {"mensaje": "Caminas hacia adelante.", "a_escena": 'bosque'},
+            'inicio': Escena('inicio', """""", {
+                'revisar codigo': {"mensaje": "Al sumergirte en el código, descubres una anomalía.",
+                                "a_escena": 'consecuencias_decisiones'},
+                'entrevistar colegas': {"mensaje": "Decides entrevistar a tus antiguos colegas.",
+                                        "a_escena": 'consecuencias_decisiones'},
+                'buscar pistas': {"mensaje": "Optas por buscar pistas en los registros de actividad del laboratorio.",
+                                "a_escena": 'consecuencias_decisiones'},
                 'irse': "Decides abandonar el laboratorio.",
-                'hablar': "Inicias una conversación con un colega.",
+            }),
+            'consecuencias_decisiones': Escena('consecuencias_decisiones', "Te enfrentas a las consecuencias de tus decisiones.", {
+                'desactivar secuencia': {"mensaje": "Al desactivar la secuencia de comandos, el comportamiento extraño de Esditeo cesa momentáneamente. Sin embargo, pronto te das cuenta de que tu acción ha alertado a alguien o algo.",
+                                        "a_escena": 'decision_desactivar_secuencia'},
+                'analizar secuencia': {"mensaje": "Al analizar la secuencia de comandos, descubres que es un intento de hacer que Esditeo actúe de manera autónoma y evite ser controlado.",
+                                    "a_escena": 'decision_analizar_secuencia'},
+            }),
+            'decision_desactivar_secuencia': Escena('decision_desactivar_secuencia', """¡Vaya, eso parece haberlo detenido por ahora!
+            Pero algo no está bien, siento que alguien nos está observando...""", {
+                'seguir investigando': {"mensaje": "Bueno, no hay tiempo que perder. Seguiré investigando, aunque me siento observado...",
+                                        "a_escena": 'bosque'},
+                'rastrear fuente': {"mensaje": "Antes de seguir, necesito saber quién intentó tomar el control de Esditeo. Puede haber pistas en el sistema. Vamos a rastrearlos.",
+                                    "a_escena": 'decision_rastrear_fuente'},
+            }),
+            'decision_analizar_secuencia': Escena('decision_analizar_secuencia', """Interesante, esto parece un intento de liberar a Esditeo.
+            ¿Pero con qué propósito?""", {
+                'modificar secuencia': {"mensaje": "Podría usar esto para tener a Esditeo de mi lado, pero debo tener cuidado. No quiero que vuelva a descontrolarse.",
+                                    "a_escena": 'decision_modificar_secuencia'},
+                'eliminar secuencia': {"mensaje": "No puedo arriesgarme a perder el control de Esditeo. Esto debe irse, y rápido.",
+                                    "a_escena": 'decision_eliminar_secuencia'},
+            }),
+            'decision_rastrear_fuente': Escena('decision_rastrear_fuente', """Encuentras un dispositivo de rastreo que podría ayudarte en tu búsqueda.""", {
+                'continuar investigacion': {"mensaje": "Continúas investigando con el dispositivo de rastreo en mano.",
+                                            "a_escena": 'bosque'},
+            }),
+            'decision_modificar_secuencia': Escena('decision_modificar_secuencia', """Podría usar esto para tener a Esditeo de mi lado,
+            pero debo tener cuidado. No quiero que vuelva a descontrolarse.""", {
+                'continuar investigacion': {"mensaje": "Decides continuar la investigación con la secuencia modificada.",
+                                            "a_escena": 'bosque'},
+            }),
+            'decision_eliminar_secuencia': Escena('decision_eliminar_secuencia', """No puedo arriesgarme a perder el control de Esditeo.
+            Esto debe irse, y rápido.""", {
+                'continuar investigacion': {"mensaje": "Aunque has eliminado la secuencia, decides seguir investigando.",
+                                            "a_escena": 'bosque'},
             }),
             'bosque': Escena('bosque', "Has llegado a un misterioso bosque.", {
                 'explorar': "Te aventuras más profundamente en el bosque.",
@@ -56,12 +99,7 @@ class Juego:
     def cambiar_escena(self, nombre_escena):
         self.escena_actual = nombre_escena
         self.escenas[nombre_escena].mostrar_descripcion()
-        
-        if nombre_escena == 'inicio':
-            pass
-        elif nombre_escena == 'bosque':
-            self.cargar_y_reproducir_musica("H:/My Drive/programacion/juego_texto/music/bosque.mp3")
-    
+
     def cargar_y_reproducir_musica(self, ruta):
         pygame.mixer.music.load(ruta)
         pygame.mixer.music.play(-1)
@@ -71,7 +109,9 @@ class Juego:
             type_print("Gracias por jugar. ¡Hasta luego!")
             sys.exit()
         acciones_escena_actual = self.escenas[self.escena_actual].acciones
-        if accion_usuario in acciones_escena_actual:
+        if accion_usuario == 'ayuda':
+            self.escenas[self.escena_actual].mostrar_opciones()
+        elif accion_usuario in acciones_escena_actual:
             accion = acciones_escena_actual[accion_usuario]
             if isinstance(accion, dict):
                 type_print(accion.get('mensaje', 'Mensaje no definido para esta acción.'))
@@ -87,7 +127,7 @@ class Juego:
         pygame.init()
         self.cargar_y_reproducir_musica("H:/My Drive/programacion/juego_texto/music/inicio.mp3")
         print()
-        print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
+        type_print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
 ░▒█▀▀▀░█░░░░█░█░█▀▀░▀▀▄░█▄▄█░█▀▀░█▄▄▀░░█░░█▄▄█░█▄▄▀░░░█░█░█▀▀░░░█░░█▄▄█░░░▒█░▒█▄▄█
 ░▒█▄▄▄░▀▀░░░▀▀░░▀▀▀░▀▀▀░█░░░░▀▀▀░▀░▀▀░░▀░░▀░░▀░▀░▀▀░░░▀▀░░▀▀▀░░░▀▀░▀░░▀░░░▄█▄▒█░▒█
 """)
@@ -117,7 +157,6 @@ Sé astuto con tus decisiones y mucha suerte, que el poder de la IA esté de tu 
             print()
             accion_usuario = input().lower()
             self.ejecutar_accion(accion_usuario)
-
 
 juego = Juego()
 juego.iniciar()
