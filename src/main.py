@@ -58,8 +58,34 @@ class Escena:
 class Juego:
     def __init__(self):
         self.nombre_jugador = ""
+        self.items = {}
         self.escenas = {
-            'inicio': Escena('inicio', f"""Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
+            'inicio': Escena('inicio', f"""
+---------------------------------------------------------
+---------------------------------------------------------
+-----------------------=@@@@@%#*=------------------------
+---------------------%@@@@@@@@@@@@=----------------------
+--------------------=@@@@@@@@@@@@@@+---------------------
+--------------------#@@@@@@@@@@@@@@@---------------------
+--------------------+@@@@@@@@@@@@@@@=--------------------
+--------------------+@@@@@@@@@@@@@@@=--------------------
+--------------------%@@@@@@@@@@@@@@@+--------------------
+--------------------=@@@@@@@@@@@@@@@---------------------
+---------------------+@@@@@@@@@@@@#=---------------------
+----------------------=@@@@@@@@@@@-----------------------
+-----------------------%@@@@@@@@@+-----------------------
+----------------------*@@@@@@@@@@@*----------------------
+------------------=*%@@@@@@@@@@@@@@@%#+------------------
+------------=+*#%@@@@@@@@@@@@@@@@@@@@@@@@#*+-------------
+----------+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=----------
+---------*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=---------
+---------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*---------
+--------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+--------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+--------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+---------=======================================---------
+---------------------------------------------------------
+Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
 necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, ¿me puedes ayudar con algunos pendientes de esta lista? """, {
                 'si': {"mensaje": f"Manu: Muchas gracias {self.nombre_jugador}, ¡sabía que podía contar con tu ayuda!",
                                 "a_escena": 'lista'},
@@ -71,8 +97,30 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
     -> Entrevistar a compañeros implicados en el desarrollo
     -> Buscar pistas
 --------------------------------------------------------------------------""", {
-                'revisar codigo': {"mensaje": "Al sumergirte en el código, descubres una anomalía.",
-                            "a_escena": 'consecuencias_decisiones'},
+                'revisar codigo': {"mensaje": f"""
+                                    
+                    ------------------------------------------------
+                    ------X$&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&$x------
+                    ------;+&$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$X:------
+                    ------;+$XXXXXXXXXxxxxx++xxxxxXXXXXXXXX$X;------
+                    ------;+$XXXXXxx++;;;;::::;;;;++xxXXXXX$X;------
+                    ------;+$XXXx++;;::..........::;;++xxXX$X;------
+                    ------;+$XXxx+;::..          ..::;++xxX$X;------
+                    ------;+$$$$$$XXXx;:          ..:;;+xxX$X;------
+                    ------;+&$$$$$$$$$$$$$$$$Xx+;:::;;+xxX$$X;------
+                    ------;;&$$$$$$$$$$$$$$$$$$$$$$$$XxXX$$$x;------
+                    ------;;&$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$x;------
+                    ------;;&$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$&x;------
+                    ------:;&&&&&&&&&&&&&&&&&&&&&&&&&&&&$&X$x:------
+                    ------:X&&&&&&&&&&&&x::::+&&&&&&&&&&&&$&X:------
+                    ------------------ &&&&&&&& --------------------        
+                    ------------- &&&&&&&&&&&&&&&&&& ---------------
+                    ------------- &&&&&&&&&&&&&&&&&& ---------------
+                    ------------------------------------------------
+                                    
+Al sumergirte en el código, descubres una anomalía. Hay una secuencia de comandos extraña que no
+recuerdas haber programado.""",
+                            "a_escena": 'codigo'},
                 'entrevistar colegas': {"mensaje": "Decides entrevistar a tus antiguos colegas.",
                                         "a_escena": 'pendiente'},
                 'buscar pistas': {"mensaje": "Optas por buscar pistas en los registros de actividad del laboratorio.",
@@ -85,7 +133,7 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
             'nolista': Escena('nolista', """""""", {
                 
             }),
-            'consecuencias_decisiones': Escena('consecuencias_decisiones', "Te enfrentas a las consecuencias de tus decisiones.", {
+            'codigo': Escena('codigo', "Te enfrentas a las consecuencias de tus decisiones.", {
                 'desactivar secuencia': {"mensaje": "Al desactivar la secuencia de comandos, el comportamiento extraño de Esditeo cesa momentáneamente. Sin embargo, pronto te das cuenta de que tu acción ha alertado a alguien o algo.",
                                         "a_escena": 'decision_desactivar_secuencia'},
                 'analizar secuencia': {"mensaje": "Al analizar la secuencia de comandos, descubres que es un intento de hacer que Esditeo actúe de manera autónoma y evite ser controlado.",
@@ -141,7 +189,7 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
         if accion_usuario == 'salir':
             type_print("Gracias por jugar. ¡Hasta luego!")
             sys.exit()
-        elif accion_usuario == 'revisar lista':
+        elif accion_usuario == 'items' or accion_usuario == 'revisar items' or accion_usuario == 'ver items':
             self.mostrar_items()
         else:
             acciones_escena_actual = self.escenas[self.escena_actual].acciones
@@ -154,28 +202,36 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
                     nueva_escena = accion.get('a_escena')
                     if nueva_escena:
                         self.cambiar_escena(nueva_escena)
+                        nueva_escena_actual = self.escenas[self.escena_actual]
+                        if nueva_escena_actual.items:
+                            for item, descripcion in nueva_escena_actual.items.items():
+                                self.agregar_item(item, descripcion)
                 else:
                     type_print(accion)
-                if 'dar_item' in accion:
-                        item = accion['dar_item']
-                        descripcion = accion['descripcion_item']
-                        self.agregar_item(item, descripcion)
             else:
                 type_print("No entiendo esa acción. Intenta nuevamente.")
     
+        
     def mostrar_items(self):
-        self.escenas[self.escena_actual].mostrar_items()
+        if self.items:
+            type_print("Tus objetos obtenidos:")
+            for item, descripcion in self.items.items():
+                type_print(f"- {item}: {descripcion}")
+        else:
+            type_print("No tienes ningún objeto aún.")
 
     def agregar_item(self, item, descripcion):
-        self.escenas[self.escena_actual].agregar_item(item, descripcion)
+        self.items[item] = descripcion
 
     def iniciar(self):
         pygame.init()
         self.cargar_y_reproducir_musica("H:/My Drive/programacion/juego_texto/music/inicio.mp3")
         print()
-        type_print("""░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
+        type_print("""
+░▒█▀▀▀░█░░░░█▀▄░█▀▀░█▀▀░▄▀▀▄░█▀▀░█▀▀▄░▀█▀░█▀▀▄░█▀▀▄░░░█▀▄░█▀▀░░░█░░█▀▀▄░░░▀█▀░█▀▀▄
 ░▒█▀▀▀░█░░░░█░█░█▀▀░▀▀▄░█▄▄█░█▀▀░█▄▄▀░░█░░█▄▄█░█▄▄▀░░░█░█░█▀▀░░░█░░█▄▄█░░░▒█░▒█▄▄█
 ░▒█▄▄▄░▀▀░░░▀▀░░▀▀▀░▀▀▀░█░░░░▀▀▀░▀░▀▀░░▀░░▀░░▀░▀░▀▀░░░▀▀░░▀▀▀░░░▀▀░▀░░▀░░░▄█▄▒█░▒█
+
 """)
         type_print("Bienvenido a 'El despertar de la IA'")
         print()
@@ -186,8 +242,35 @@ sus problemas más complejos. Sin embargo, un día, Esditeo desaparece misterios
 Como jugador, asumes el papel de: """)
         nombre_jugador = input()
         self.nombre_jugador = nombre_jugador
-        self.escenas['inicio'] = Escena('inicio', f"""Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
-necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, ¿me puedes ayudar con algunos pendientes de esta lista?""", {
+        self.escenas['inicio'] = Escena('inicio', f"""
+                    ---------------------------------------------------------
+                    ---------------------------------------------------------
+                    -----------------------=@@@@@%@*=------------------------
+                    ---------------------%@@@@@@@@@@@@=----------------------
+                    --------------------=@@@@@@@@@@@@@@+---------------------
+                    --------------------#@@@@@@@@@@@@@@@---------------------
+                    --------------------+@@@@@@@@@@@@@@@=--------------------
+                    --------------------+@@@@@@@@@@@@@@@=--------------------
+                    --------------------%@@@@@@@@@@@@@@@+--------------------
+                    --------------------=@@@@@@@@@@@@@@@---------------------
+                    ---------------------+@@@@@@@@@@@@#=---------------------
+                    ----------------------=@@@@@@@@@@@-----------------------
+                    -----------------------%@@@@@@@@@+-----------------------
+                    ----------------------*@@@@@@@@@@@*----------------------
+                    ------------------=*%@@@@@@@@@@@@@@@%#+------------------
+                    ------------=+*#%@@@@@@@@@@@@@@@@@@@@@@@@@*+-------------
+                    ----------+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=----------
+                    ---------*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=---------
+                    ---------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*---------
+                    --------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+                    --------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+                    --------=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#---------
+                    ---------=======================================---------
+                    ---------------------------------------------------------
+
+Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
+necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, ¿me puedes ayudar con algunos
+pendientes de esta lista? """, {
             'si': {"mensaje": f"Manu: Muchas gracias {self.nombre_jugador}, ¡sabía que podía contar con tu ayuda!",
                             "a_escena": 'lista'},
             'no': {"mensaje": "Manu: Bueno... no te preocupes, ya lo haré yo mismo..., que te vaya muy bien en lo que tengas que hacer",
