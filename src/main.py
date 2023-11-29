@@ -26,10 +26,16 @@ class Escena:
     def mostrar_opciones(self):
         type_print("Opciones disponibles:")
         for accion, descripcion in self.acciones.items():
-            type_print(f"- {accion}: {descripcion.get('mensaje', 'Mensaje no definido para esta acción.')}")
+            if isinstance(descripcion, dict):
+                mensaje = descripcion.get('mensaje', 'Mensaje no definido para esta acción.')
+            else:
+                mensaje = descripcion
+            type_print(f"- {accion}: {mensaje}")
 
     def ejecutar_accion(self, accion_usuario):
-        if accion_usuario in self.acciones:
+        if accion_usuario == 'ayuda':
+            self.mostrar_opciones()
+        elif accion_usuario in self.acciones:
             accion = self.acciones[accion_usuario]
             if isinstance(accion, dict):
                 type_print(accion.get('mensaje', 'Mensaje no definido para esta acción.'))
