@@ -3,10 +3,6 @@ import sys
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-script_dir = os.getcwd()
-func_dir = os.path.join(script_dir)
-sys.path.append(func_dir)
-from events import actions
 
 def type_print(texto, velocidad=0.02):
     for char in texto:
