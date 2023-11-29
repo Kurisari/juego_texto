@@ -4,16 +4,16 @@ import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
-def type_print(texto, velocidad=0.02):
+def type_print(texto, velocidad=0.01):
     for char in texto:
         sys.stdout.write(char)
         sys.stdout.flush()
         time.sleep(velocidad)
         
 class Escena:
-    def __init__(self, nombre, descripcion, acciones):
+    def __init__(self, nombre, descripcion, acciones, nombre_jugador=None):
         self.nombre = nombre
-        self.descripcion = descripcion
+        self.descripcion = descripcion.format(nombre_jugador=nombre_jugador)
         self.acciones = acciones
 
     def mostrar_descripcion(self):
@@ -45,15 +45,29 @@ class Escena:
 
 class Juego:
     def __init__(self):
+        self.nombre_jugador = ""
         self.escenas = {
-            'inicio': Escena('inicio', """""", {
+            'inicio': Escena('inicio', f"""Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
+necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, ¿me puedes ayudar con algunos pendientes de esta lista? """, {
+                'si': {"mensaje": f"Manu: Muchas gracias {self.nombre_jugador}, ¡sabía que podía contar con tu ayuda!",
+                                "a_escena": 'lista'},
+                'no': {"mensaje": "Manu: Bueno... no te preocupes, ya lo haré yo mismo..., que te vaya muy bien en lo que tengas que hacer",
+                                        "a_escena": 'nolista'},
+            }),
+            'lista': Escena('lista', """-------------- COSAS QUE HACER PARA INVESTIGAR DESAPARICIÓN --------------
+    -> Revisar código fuente de Esditeo
+    -> Entrevistar a compañeros implicados en el desarrollo
+    -> Buscar pistas
+--------------------------------------------------------------------------""", {
                 'revisar codigo': {"mensaje": "Al sumergirte en el código, descubres una anomalía.",
-                                "a_escena": 'consecuencias_decisiones'},
+                            "a_escena": 'consecuencias_decisiones'},
                 'entrevistar colegas': {"mensaje": "Decides entrevistar a tus antiguos colegas.",
-                                        "a_escena": 'consecuencias_decisiones'},
+                                        "a_escena": 'pendiente'},
                 'buscar pistas': {"mensaje": "Optas por buscar pistas en los registros de actividad del laboratorio.",
-                                "a_escena": 'consecuencias_decisiones'},
-                'irse': "Decides abandonar el laboratorio.",
+                                "a_escena": 'pendiente'},
+            }),
+            'nolista': Escena('nolista', """""""", {
+                
             }),
             'consecuencias_decisiones': Escena('consecuencias_decisiones', "Te enfrentas a las consecuencias de tus decisiones.", {
                 'desactivar secuencia': {"mensaje": "Al desactivar la secuencia de comandos, el comportamiento extraño de Esditeo cesa momentáneamente. Sin embargo, pronto te das cuenta de que tu acción ha alertado a alguien o algo.",
@@ -100,6 +114,7 @@ class Juego:
 
     def cambiar_escena(self, nombre_escena):
         self.escena_actual = nombre_escena
+        print()
         self.escenas[nombre_escena].mostrar_descripcion()
 
     def cargar_y_reproducir_musica(self, ruta):
@@ -140,7 +155,15 @@ avanzada llamada "Esditeo". Esditeo fue diseñado para ayudar a la humanidad a r
 sus problemas más complejos. Sin embargo, un día, Esditeo desaparece misteriosamente.
 
 Como jugador, asumes el papel de: """)
-        self.nombre_jugador = input()
+        nombre_jugador = input()
+        self.nombre_jugador = nombre_jugador
+        self.escenas['inicio'] = Escena('inicio', f"""Manu: Hola {self.nombre_jugador}, soy Manu, cuanto tiempo sin vernos, ¿ya estás al tanto de lo que sucedió?
+necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, ¿me puedes ayudar con algunos pendientes de esta lista?""", {
+            'si': {"mensaje": f"Manu: Muchas gracias {self.nombre_jugador}, ¡sabía que podía contar con tu ayuda!",
+                            "a_escena": 'lista'},
+            'no': {"mensaje": "Manu: Bueno... no te preocupes, ya lo haré yo mismo..., que te vaya muy bien en lo que tengas que hacer",
+                                    "a_escena": 'nolista'},
+        })
         type_print(self.nombre_jugador)
         type_print(""", un ingeniero de software que trabajó en el desarrollo de Esditeo.
 Tu misión es descubrir qué le sucedió a Esditeo y, si es posible, traerlo de vuelta.
@@ -155,9 +178,7 @@ Sé astuto con tus decisiones y mucha suerte, que el poder de la IA esté de tu 
         self.escenas[self.escena_actual].mostrar_descripcion()
         while True:
             print()
-            type_print("¿Qué deseas hacer?")
-            print()
-            accion_usuario = input().lower()
+            accion_usuario = input(">").lower()
             self.ejecutar_accion(accion_usuario)
 
 juego = Juego()
