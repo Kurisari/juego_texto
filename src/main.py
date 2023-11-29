@@ -11,10 +11,11 @@ def type_print(texto, velocidad=0.01):
         time.sleep(velocidad)
         
 class Escena:
-    def __init__(self, nombre, descripcion, acciones, nombre_jugador=None):
+    def __init__(self, nombre, descripcion, acciones, items=None, nombre_jugador=None):
         self.nombre = nombre
         self.descripcion = descripcion.format(nombre_jugador=nombre_jugador)
         self.acciones = acciones
+        self.items = items if items is not None else {}
 
     def mostrar_descripcion(self):
         type_print(self.descripcion)
@@ -42,6 +43,17 @@ class Escena:
                 type_print(accion)
         else:
             type_print("No entiendo esa acción. Intenta nuevamente.")
+    
+    def mostrar_items(self):
+        if self.items:
+            type_print("Tus objetos obtenidos:")
+            for item, descripcion in self.items.items():
+                type_print(f"- {item}: {descripcion}")
+        else:
+            type_print("No tienes ningún objeto aún.")
+
+    def agregar_item(self, item, descripcion):
+        self.items[item] = descripcion
 
 class Juego:
     def __init__(self):
@@ -65,7 +77,11 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
                                         "a_escena": 'pendiente'},
                 'buscar pistas': {"mensaje": "Optas por buscar pistas en los registros de actividad del laboratorio.",
                                 "a_escena": 'pendiente'},
-            }),
+            }, items={'lista': """-------------- COSAS QUE HACER PARA INVESTIGAR DESAPARICIÓN --------------
+    -> Revisar código fuente de Esditeo
+    -> Entrevistar a compañeros implicados en el desarrollo
+    -> Buscar pistas
+--------------------------------------------------------------------------"""}),
             'nolista': Escena('nolista', """""""", {
                 
             }),
@@ -125,20 +141,33 @@ necesitamos descubrir qué fue lo que pasó con nuestra más grande creación, �
         if accion_usuario == 'salir':
             type_print("Gracias por jugar. ¡Hasta luego!")
             sys.exit()
-        acciones_escena_actual = self.escenas[self.escena_actual].acciones
-        if accion_usuario == 'ayuda':
-            self.escenas[self.escena_actual].mostrar_opciones()
-        elif accion_usuario in acciones_escena_actual:
-            accion = acciones_escena_actual[accion_usuario]
-            if isinstance(accion, dict):
-                type_print(accion.get('mensaje', 'Mensaje no definido para esta acción.'))
-                nueva_escena = accion.get('a_escena')
-                if nueva_escena:
-                    self.cambiar_escena(nueva_escena)
-            else:
-                type_print(accion)
+        elif accion_usuario == 'revisar lista':
+            self.mostrar_items()
         else:
-            type_print("No entiendo esa acción. Intenta nuevamente.")
+            acciones_escena_actual = self.escenas[self.escena_actual].acciones
+            if accion_usuario == 'ayuda':
+                self.escenas[self.escena_actual].mostrar_opciones()
+            elif accion_usuario in acciones_escena_actual:
+                accion = acciones_escena_actual[accion_usuario]
+                if isinstance(accion, dict):
+                    type_print(accion.get('mensaje', 'Mensaje no definido para esta acción.'))
+                    nueva_escena = accion.get('a_escena')
+                    if nueva_escena:
+                        self.cambiar_escena(nueva_escena)
+                else:
+                    type_print(accion)
+                if 'dar_item' in accion:
+                        item = accion['dar_item']
+                        descripcion = accion['descripcion_item']
+                        self.agregar_item(item, descripcion)
+            else:
+                type_print("No entiendo esa acción. Intenta nuevamente.")
+    
+    def mostrar_items(self):
+        self.escenas[self.escena_actual].mostrar_items()
+
+    def agregar_item(self, item, descripcion):
+        self.escenas[self.escena_actual].agregar_item(item, descripcion)
 
     def iniciar(self):
         pygame.init()
